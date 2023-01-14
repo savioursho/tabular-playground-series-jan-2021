@@ -1,6 +1,7 @@
 from src import config
 import os.path
 import joblib
+from datetime import datetime
 
 
 def get_model_id(file_name: str):
@@ -14,3 +15,11 @@ def dump_model(model, path):
 def get_model(model_id: str):
     path = config.MODEL_DIR / (model_id + ".pkl")
     return joblib.load(path)
+
+
+def get_run_id():
+    return datetime.now().strftime("%m%d_%H%M_%S")
+
+
+def get_experiment_id(file_name: str):
+    return os.path.splitext(os.path.basename(file_name))[0]
