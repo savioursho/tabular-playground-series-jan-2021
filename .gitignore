@@ -141,3 +141,6 @@ catboost_info/
 *.csv
 *.parquet
 *.png
+
+# model
+/models/
