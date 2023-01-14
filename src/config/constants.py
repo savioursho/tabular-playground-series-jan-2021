@@ -12,5 +12,6 @@ OOF_DIR = HOME_DIR / "oof"
 FI_DIR = HOME_DIR / "fi"
 FI_FIG_DIR = HOME_DIR / "fi_fig"
 HPO_DIR = HOME_DIR / "hpo"
+MODEL_DIR = HOME_DIR / "models"
 
 TRACKING_FILE = HOME_DIR / "tracking/tracking.csv"
