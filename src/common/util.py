@@ -1,7 +1,10 @@
-from src import config
 import os.path
-import joblib
 from datetime import datetime
+
+import joblib
+import pandas as pd
+
+from src import config
 
 
 def get_model_id(file_name: str):
@@ -23,3 +26,10 @@ def get_run_id():
 
 def get_experiment_id(file_name: str):
     return os.path.splitext(os.path.basename(file_name))[0]
+
+
+def load_data():
+    df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
+    df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
+
+    return df_train, df_test
