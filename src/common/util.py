@@ -1,8 +1,10 @@
 import os.path
 from datetime import datetime
+from typing import Optional
 
 import joblib
 import pandas as pd
+from typing_extensions import Literal
 
 from src import config
 
@@ -28,8 +30,16 @@ def get_experiment_id(file_name: str):
     return os.path.splitext(os.path.basename(file_name))[0]
 
 
-def load_data():
-    df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
-    df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
-
-    return df_train, df_test
+def load_data(
+    train_test: Literal["train", "test", "all"] = "all",
+):
+    if train_test == "train":
+        df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
+        return df_train
+    elif train_test == "test":
+        df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
+        return df_test
+    elif train_test == "all":
+        df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
+        df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
+        return df_train, df_test
