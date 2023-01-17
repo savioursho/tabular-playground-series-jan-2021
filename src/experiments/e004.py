@@ -2,7 +2,7 @@ from src import config
 from src.common import update_tracking, util
 from src.cv.oof import save_oof
 from src.fi import plot_permutation_importance
-from src.pipelines import p001
+from src.pipelines import p002
 
 TEST_RUN = False
 
@@ -29,7 +29,7 @@ if TEST_RUN:
 #######################
 # RUN
 #######################
-dict_result = p001.train(df_train)
+dict_result = p002.train(df_train)
 
 #######################
 # SAVE
