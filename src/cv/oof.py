@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 import pandas as pd
 from sklearn.base import clone, is_classifier
@@ -14,7 +16,9 @@ def oof(
     y_train_val,
     groups=None,
     cv=5,
-    return_permutation_importance=False,
+    return_permutation_importance: bool = False,
+    permutation_importance_repeats: int = 10,
+    permutation_importance_samples: Union[int, float] = 1.0,
 ):
     X = np.asarray(X_train_val)
     y = np.asarray(y_train_val).ravel()
@@ -46,6 +50,8 @@ def oof(
                 X[val_idx, :],
                 y[val_idx],
                 feature_names,
+                n_repeats=permutation_importance_repeats,
+                max_samples=permutation_importance_samples,
             )
             list_df_permutation_importance.append(df_permutation_importance)
 
