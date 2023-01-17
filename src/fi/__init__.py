@@ -9,12 +9,16 @@ def get_permutation_importance(
     y_val,
     feature_names=None,
     n_repeats=30,
+    max_samples=1.0,
 ):
     r = permutation_importance(
         model,
         X_val,
         y_val,
         n_repeats=n_repeats,
+        n_jobs=-1,
+        random_state=0,
+        max_samples=max_samples,
     )
 
     if feature_names is None:
