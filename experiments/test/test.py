@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.append("../../")
-from src.kagglebook import model_xgb
+from src.kagglebook import model_lgb
 from src.kagglebook.runner import Runner
 from src.kagglebook.util import Logger
 
@@ -13,12 +13,12 @@ logger = Logger()
 # %%
 runner = Runner(
     "test",
-    model_xgb.ModelXGB,
+    model_lgb.ModelLGB,
     ["cont10"],
     {
         "random_state": 1,
-        "num_round": 50,
-        "early_stopping_rounds": 5,
+        "eval_metric": "rmse",
+        "stopping_rounds": 5,
     },
 )
 
