@@ -144,3 +144,4 @@ catboost_info/
 
 # model
 /models/
+*.model
