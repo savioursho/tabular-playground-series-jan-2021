@@ -1,6 +1,8 @@
 import logging
 import os.path
 import sys
+import time
+from contextlib import contextmanager
 from datetime import datetime
 from typing import Optional
 
@@ -95,3 +97,20 @@ def get_logger(
     logger.addHandler(f_handler)
 
     return logger
+
+
+@contextmanager
+def timer(name, logger=None, level=logging.DEBUG):
+    """
+    https://github.com/amaotone/spica/blob/master/spica/utils.py
+
+    Examples
+    --------
+    >>> with timer('add'):
+    >>>     1 + 1           # execution time will be printed
+    """
+    print_ = print if logger is None else lambda msg: logger.log(level, msg)
+    t0 = time.time()
+    print_(f"[{name}] start")
+    yield
+    print_(f"[{name}] done in {time.time() - t0:.0f} s")

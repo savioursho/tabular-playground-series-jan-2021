@@ -8,8 +8,8 @@ def get_permutation_importance(
     X_val,
     y_val,
     feature_names=None,
-    n_repeats=30,
-    max_samples=1.0,
+    n_repeats=10,
+    max_samples=0.5,
 ):
     r = permutation_importance(
         model,

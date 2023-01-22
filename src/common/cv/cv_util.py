@@ -7,7 +7,7 @@ __all__ = [
     "get_data_splits_by_fraction",
     "get_data_splits_by_month",
     "get_data_splits_by_date_block",
-    "create_stratify_labels_for_regression"
+    "create_stratify_labels_for_regression",
 ]
 
 
@@ -66,7 +66,8 @@ def get_data_splits_by_date_block(logger, df, train_months, validation_months):
 
 
 def create_stratify_labels_for_regression(
-    df, target_feature="target",
+    df,
+    target_feature="target",
 ):
     """Returns a new column to the tarining data generated based on the
     distribution of the continous target variable. This new column can be
@@ -76,7 +77,7 @@ def create_stratify_labels_for_regression(
     df = df.reset_index(drop=False)
     df = df.sample(frac=1).reset_index(drop=True)
     num_bins = np.int(np.floor(1 + np.log2(len(df))))
-    df.loc[:, "bins"] = pd.cut(df["target"], bins=num_bins, labels=False)
+    df.loc[:, "bins"] = pd.cut(df[target_feature], bins=num_bins, labels=False)
     # This portion of the code may be specific to current competition
     df = df.set_index("id")
     df = df.sort_index()
