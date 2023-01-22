@@ -17,20 +17,9 @@ TARGET_COL = "target"
 
 """
 TODO
-- loggerの設定を確認する
-- パスの設定を変更する
-
-- Runner
-    - OK 'train_fold'
-    - OK 'run_train_cv'
-    - OK 'run_train_all'
-    - OK 'run_predict_all'
-    - OK 'build_model'
-    - OK 'load_x_train'
-    - OK 'load_y_train'
-    - OK 'load_x_test'
-    - OK 'load_index_fold'
-    - OK 'run_predict_cv'
+- 特徴量重要度の出力(画像とcsv)
+- oof予測値のcsvの出力
+- テストデータの予測値のcsvの出力
 """
 
 
