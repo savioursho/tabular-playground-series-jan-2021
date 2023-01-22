@@ -34,16 +34,34 @@ def get_experiment_id(file_name: str):
 
 def load_data(
     train_test: Literal["train", "test", "all"] = "all",
+    test_run: bool = False,
 ):
+    if test_run:
+        nrows = 100
+    else:
+        nrows = None
+
     if train_test == "train":
-        df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
+        df_train = pd.read_csv(
+            config.RAW_DATA_DIR / "train.csv",
+            nrows=nrows,
+        )
         return df_train
     elif train_test == "test":
-        df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
+        df_test = pd.read_csv(
+            config.RAW_DATA_DIR / "test.csv",
+            nrows=nrows,
+        )
         return df_test
     elif train_test == "all":
-        df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
-        df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
+        df_train = pd.read_csv(
+            config.RAW_DATA_DIR / "train.csv",
+            nrows=nrows,
+        )
+        df_test = pd.read_csv(
+            config.RAW_DATA_DIR / "test.csv",
+            nrows=nrows,
+        )
         return df_train, df_test
 
 
