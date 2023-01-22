@@ -8,105 +8,59 @@ import sys
 
 sys.path.append("../../")
 import gc
+import shutil
 
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, clone
-from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold, check_cv
-from tqdm import tqdm
 
 from src.common import util
 from src.common.com_util import update_tracking
-from src.kagglebook.util import Logger
 
 # %%
 
-# ======================================================
-# test run
-# ======================================================
-TEST_RUN = False
 
 # ======================================================
-# ロガー設定
+# 設定
 # ======================================================
+# テストラン
+TEST_RUN = True
+
+# ロガー設定
 logger = util.get_logger(__name__)
 
-# ======================================================
 # ID
-# ======================================================
+EXPERIMENT_ID = util.get_experiment_id(__file__)
+
 if TEST_RUN:
-    RUN_ID = "test"
-    os.makedirs(RUN_ID, exist_ok=True)
+    RUN_ID = "test" + "-" + util.get_run_id() + "-" + EXPERIMENT_ID
 else:
     RUN_ID = util.get_run_id()
-    EXPERIMENT_ID = util.get_experiment_id(__file__)
     RUN_ID = RUN_ID + "-" + EXPERIMENT_ID
-    os.makedirs(RUN_ID)
 
-# %%
+# ディレクトリ
+RESULT_DIR = os.path.join(
+    os.path.dirname(__file__),
+    "results",
+    RUN_ID,
+)
+
 # ======================================================
-# 各種定義
+# 実験固有の定義ファイルのインポート・保存
 # ======================================================
+from model import build_model
+from train import train_model
 
-
-def oof_predict(
-    estimator: BaseEstimator,
-    X: pd.DataFrame,
-    y: pd.Series,
-    cv=None,
-):
-    logger.info("Start Out of Fold Prediction")
-
-    # splitter
-    splitter = check_cv(cv)
-
-    # oof予測値のデータフレームの準備
-    df_oof = pd.DataFrame()
-    df_oof["target"] = y
-    df_oof["oof"] = np.nan
-    df_oof["fold"] = np.nan
-
-    # モデルを格納するリスト
-    models = []
-
-    # ndarrayにする
-    X_array = np.asarray(X)
-    y_array = np.asarray(y)
-
-    # カラム名
-    columns = X.columns.to_list()
-
-    # プログレスバー
-    pbar = tqdm(splitter.split(X, y), desc="[Out of Fold]")
-    for num_fold, (train_index, val_index) in enumerate(pbar):
-
-        logger.debug("fold %d", num_fold)
-
-        # model clone
-        _model = clone(estimator)
-
-        # train val の分割
-        X_train, X_val = X_array[train_index], X_array[val_index]
-        y_train, y_val = y_array[train_index], y_array[val_index]
-
-        # fit
-        _model.fit(X_train, y_train)
-
-        # oof predict
-        pred = _model.predict(X_val)
-        df_oof.iloc[val_index, df_oof.columns.get_loc("oof")] = pred
-        df_oof.iloc[val_index, df_oof.columns.get_loc("fold")] = num_fold
-
-        # モデルをリストに格納
-        models.append(_model)
-
-        # gc
-        gc.collect()
-
-    logger.info("Finish Out of Fold Prediction.")
-    return df_oof, models
+# 保存
+# =====
+DEFINITION_DIR = os.path.join(RESULT_DIR, "definitions")
+os.makedirs(DEFINITION_DIR)
+# モデル定義
+shutil.copy("model.py", DEFINITION_DIR)
+# 訓練方法定義
+shutil.copy("train.py", DEFINITION_DIR)
 
 
 # %%
@@ -132,25 +86,10 @@ features = [
 ]
 
 # ======================================================
-# パラメータ
+# モデル
 # ======================================================
-params = {
-    "learning_rate": 0.05,
-    "max_iter": 2000,
-    "max_leaf_nodes": 63,
-    "early_stopping": True,
-    "scoring": "neg_mean_squared_error",
-    "random_state": 0,
-}
+model = build_model()
 
-# ======================================================
-# CV
-# ======================================================
-splitter = KFold(
-    n_splits=5,
-    shuffle=True,
-    random_state=0,
-)
 
 # %%
 # ======================================================
@@ -173,11 +112,10 @@ X_test = df_test.drop(columns=["id"])
 # 学習
 # ======================================================
 
-df_oof, models = oof_predict(
-    HistGradientBoostingRegressor(**params),
+df_oof, models = train_model(
+    model,
     X,
     y,
-    splitter,
 )
 
 # %%
@@ -200,6 +138,7 @@ for i, model in enumerate(models):
 logger.info("Tracking")
 
 # スコア
+# =====
 
 oof_score = np.sqrt(
     mean_squared_error(
@@ -217,33 +156,39 @@ update_tracking(
 
 
 # oof
+# =====
+OOF_DIR = os.path.join(RESULT_DIR, "oof")
 os.makedirs(
-    os.path.join(RUN_ID, "oof"),
+    OOF_DIR,
     exist_ok=True,
 )
 df_oof.to_csv(
-    os.path.join(RUN_ID, "oof", "oof.csv"),
+    os.path.join(OOF_DIR, "oof.csv"),
     index=False,
 )
 
 # model
+# =====
+MODEL_DIR = os.path.join(RESULT_DIR, "model")
 os.makedirs(
-    os.path.join(RUN_ID, "model"),
+    MODEL_DIR,
     exist_ok=True,
 )
 for i, model in enumerate(models):
     pd.to_pickle(
         model,
-        os.path.join(RUN_ID, "model", f"model-fold{i}.pkl"),
+        os.path.join(MODEL_DIR, f"model-fold{i}.pkl"),
     )
 
 # predict
+# =====
+PRED_DIR = os.path.join(RESULT_DIR, "pred")
 os.makedirs(
-    os.path.join(RUN_ID, "pred"),
+    PRED_DIR,
     exist_ok=True,
 )
 df_pred.to_csv(
-    os.path.join(RUN_ID, "pred", "prediction.csv"),
+    os.path.join(PRED_DIR, "prediction.csv"),
     index=False,
 )
 
