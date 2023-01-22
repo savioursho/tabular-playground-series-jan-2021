@@ -139,12 +139,12 @@ features = [
 # ======================================================
 
 params = {
-    "n_estimators": 100,
-    "max_leaf_nodes": 63,
+    "n_estimators": 500,
+    "max_leaf_nodes": 127,
     "random_state": 0,
     "max_features": 0.3,
     "bootstrap": True,
-    "max_samples": 0.5,
+    "max_samples": 0.3,
 }
 model = RandomForestRegressor(**params)
 
