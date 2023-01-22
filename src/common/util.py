@@ -1,4 +1,6 @@
+import logging
 import os.path
+import sys
 from datetime import datetime
 from typing import Optional
 
@@ -43,3 +45,31 @@ def load_data(
         df_train = pd.read_csv(config.RAW_DATA_DIR / "train.csv")
         df_test = pd.read_csv(config.RAW_DATA_DIR / "test.csv")
         return df_train, df_test
+
+
+def get_logger(
+    logger_name: str,
+):
+    # formatter
+    FORMAT = "[%(levelname)s]%(asctime)s:%(name)s:%(message)s"
+    formatter = logging.Formatter(FORMAT)
+
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.DEBUG)
+
+    # ストリームハンドラー
+    s_handler = logging.StreamHandler(sys.stdout)
+    s_handler.setFormatter(formatter)
+    logger.addHandler(s_handler)
+
+    # ファイルハンドラー
+    f_handler = logging.handlers.RotatingFileHandler(
+        config.LOG_DIR / "experiment.log",
+        encoding="utf-8",
+        maxBytes=1000,
+        backupCount=5,
+    )
+    f_handler.setFormatter(formatter)
+    logger.addHandler(f_handler)
+
+    return logger
