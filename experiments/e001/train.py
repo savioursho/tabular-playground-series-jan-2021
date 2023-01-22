@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, clone
 from sklearn.model_selection import KFold, check_cv
 
-from src.common import util
+from src.common.util import util
 
 logger = util.get_logger(__name__)
 

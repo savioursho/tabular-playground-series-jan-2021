@@ -1,7 +1,7 @@
 #%%
 from pathlib import Path
 
-from src.common import util
+from src.common.util import util
 from src.features import dump_features
 
 logger = util.get_logger(__name__)

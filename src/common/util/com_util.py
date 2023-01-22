@@ -8,8 +8,8 @@ import time
 import numpy as np
 import pandas as pd
 
+import src.common.viz as viz
 import src.config.constants as constants
-import src.viz as viz
 
 __all__ = [
     "set_seed",
@@ -30,7 +30,7 @@ __all__ = [
 def set_seed(seed=0):
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
 
 def trigger_gc(logger):
@@ -207,7 +207,10 @@ def save_artifacts(
     if train_index is not None:
         oof_df = pd.DataFrame(result_dict["y_oof"], index=train_index)
         save_file(
-            logger, oof_df, oof_dir, f"oof_{model_number}_{run_id}_{score:.5f}.csv",
+            logger,
+            oof_df,
+            oof_dir,
+            f"oof_{model_number}_{run_id}_{score:.5f}.csv",
         )
 
     if is_plot_fi is True:
@@ -231,7 +234,9 @@ def save_artifacts(
         # Save the plot for best features
         best_features = result_dict["best_features"]
         viz.save_feature_importance_as_fig(
-            best_features, fi_fig_dir, f"fi_{model_number}_{run_id}_{score:.5f}.png",
+            best_features,
+            fi_fig_dir,
+            f"fi_{model_number}_{run_id}_{score:.5f}.png",
         )
 
 
@@ -285,8 +290,7 @@ def create_submission_file(
 def save_optuna_artifacts(
     logger, best_score, best_params, param_importance, run_id, hpo_dir
 ):
-    """Saves the best params & best score returned by optuna in a CSV & png file
-    """
+    """Saves the best params & best score returned by optuna in a CSV & png file"""
     # Convert best params into a DF
     best_params_df = pd.DataFrame.from_dict(best_params, orient="index")
     best_params_df = best_params_df.reset_index(drop=False)
@@ -319,8 +323,7 @@ def save_optuna_artifacts(
 def save_permutation_imp_artifacts(
     logger, perm_imp_df, top_imp_df, run_id, model_name, fi_dir, fi_fig_dir
 ):
-    """Saves the fi
-    """
+    """Saves the fi"""
     # Save the file as a CSV
     all_fold_file_name = f"pi_all_fold_{model_name}_{run_id}"
     save_file(

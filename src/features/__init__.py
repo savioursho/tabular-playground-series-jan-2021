@@ -4,7 +4,7 @@ import pandas as pd
 from typing_extensions import Literal
 
 from src import config
-from src.common import util
+from src.common.util import util
 
 logger = util.get_logger(__name__)
 

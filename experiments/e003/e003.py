@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 
-from src.common import util
-from src.common.com_util import update_tracking
+from src.common.util import util
+from src.common.util.com_util import update_tracking
 
 # %%
 
@@ -23,7 +23,7 @@ from src.common.com_util import update_tracking
 # 設定
 # ======================================================
 # テストラン
-TEST_RUN = False
+TEST_RUN = True
 
 # ロガー設定
 logger = util.get_logger(__name__)

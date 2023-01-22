@@ -1,21 +1,19 @@
-import os
 import gc
-from datetime import datetime
 import logging
+import os
+from datetime import datetime
 
-import pandas as pd
-import numpy as np
-
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import StratifiedKFold
-
-import optuna as optuna
 import lightgbm as lgb
+import numpy as np
+import optuna as optuna
+import pandas as pd
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import LabelEncoder
 
-import common.com_util as common
+import config.constants as constants
 import modeling.train_util as train_util
 import munging.process_data_util as process_data
-import config.constants as constants
+import src.common.util.com_util as common
 
 
 def get_data(frac=None):
@@ -23,7 +21,11 @@ def get_data(frac=None):
     # Read the processed data. Read the features with which best result has been
     # received so far.
     train_df, test_df, sample_submission_df = process_data.read_processed_data(
-        logger, constants.PROCESSED_DATA_DIR, train=True, test=True, sample_submission=True
+        logger,
+        constants.PROCESSED_DATA_DIR,
+        train=True,
+        test=True,
+        sample_submission=True,
     )
 
     if frac:
@@ -32,7 +34,9 @@ def get_data(frac=None):
 
     cat_features = "f1", "f86", "f55"
 
-    features_df = pd.read_parquet(f"{constants.FEATURES_DATA_DIR}/generated_features.parquet")
+    features_df = pd.read_parquet(
+        f"{constants.FEATURES_DATA_DIR}/generated_features.parquet"
+    )
     logger.info(f"Shape of the features {features_df.shape}")
 
     combined_df = pd.concat([train_df.drop("loss", axis=1), test_df])
@@ -46,7 +50,7 @@ def get_data(frac=None):
     combined_df = combined_df.loc[:, orginal_features + feature_names]
     logger.info(f"Shape of the data after selecting features {combined_df.shape}")
 
-    train_X = combined_df.iloc[0: len(train_df)]
+    train_X = combined_df.iloc[0 : len(train_df)]
     train_Y = train_df[TARGET]
 
     logger.debug(f"Shape of train_X: {train_X.shape}, train_Y: {train_Y.shape}")
@@ -64,15 +68,14 @@ def objective(trial):
         "verbosity": -1,
         "boosting_type": "gbdt",
         "random_state": 42,
-
         "n_estimators": trial.suggest_int("n_estimators", 20, 1000),
-        "max_depth": trial.suggest_int('max_depth', 6, 10),
-        "learning_rate": trial.suggest_uniform('learning_rate', 0.0001, 0.99),
+        "max_depth": trial.suggest_int("max_depth", 6, 10),
+        "learning_rate": trial.suggest_uniform("learning_rate", 0.0001, 0.99),
         "lambda_l1": trial.suggest_float("lambda_l1", 0.1, 0.5, log=True),
         "lambda_l2": trial.suggest_float("lambda_l2", 0.1, 0.5, log=True),
         "num_leaves": trial.suggest_int("num_leaves", 2, 50),
         "feature_fraction": trial.suggest_float("feature_fraction", 0.0001, 1.0),
-        "bagging_fraction": trial.suggest_float("bagging_fraction",  0.0001, 1.0),
+        "bagging_fraction": trial.suggest_float("bagging_fraction", 0.0001, 1.0),
         "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
         "min_child_samples": trial.suggest_int("min_child_samples", 100, 1200),
     }
@@ -93,8 +96,7 @@ def objective(trial):
         )
 
         lgb_train = lgb.Dataset(X_train, y_train)
-        lgb_eval = lgb.Dataset(
-            X_validation, y_validation, reference=lgb_train)
+        lgb_eval = lgb.Dataset(X_validation, y_validation, reference=lgb_train)
 
         pruning_callback = optuna.integration.LightGBMPruningCallback(trial, "auc")
 
@@ -106,7 +108,7 @@ def objective(trial):
             early_stopping_rounds=100,
             feature_name=predictors,
             categorical_feature=cat_features,
-            callbacks=[pruning_callback]
+            callbacks=[pruning_callback],
         )
 
         del lgb_train, lgb_eval, train_index, X_train, y_train
@@ -114,7 +116,9 @@ def objective(trial):
 
         y_oof[validation_index] = model.predict(X_validation)
 
-        cv_oof_score = train_util.__calculate_perf_metric(y_validation, y_oof[validation_index])
+        cv_oof_score = train_util.__calculate_perf_metric(
+            y_validation, y_oof[validation_index]
+        )
         logger.info(f"CV Score for fold {fold}: {cv_oof_score}")
         cv_scores.append(cv_oof_score)
 
@@ -141,8 +145,8 @@ if __name__ == "__main__":
     study.optimize(
         objective,
         # n_trials=5,
-        timeout=3600*12
-        )
+        timeout=3600 * 12,
+    )
 
     logger.warning(f"Number of finished trials: {len(study.trials)}")
 

@@ -17,8 +17,8 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold, check_cv
 from tqdm import tqdm
 
-from src.common import util
-from src.common.com_util import update_tracking
+from src.common.util import util
+from src.common.util.com_util import update_tracking
 from src.kagglebook.util import Logger
 
 # %%

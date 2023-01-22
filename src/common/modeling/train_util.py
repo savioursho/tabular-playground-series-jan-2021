@@ -8,15 +8,9 @@ import xgboost as xgb
 from catboost import CatBoost, Pool
 from IPython.display import display
 from sklearn import metrics
-from sklearn.metrics import (
-    make_scorer,
-    roc_auc_score,
-    mean_squared_error,
-    f1_score,
-)
+from sklearn.metrics import f1_score, make_scorer, mean_squared_error, roc_auc_score
 
-import src.common.com_util as util
-
+import src.common.util.com_util as util
 
 __all__ = [
     "cat_train_validate_on_holdout",
@@ -57,7 +51,7 @@ def evaluate_macroF1_lgb(y_hat, data):
 def evaluate_macroF1_lgb_sklearn_api(y, y_hat):
     """
     Custom F1 Score to be used for multiclass classification using lightgbm.
-    This function should be passed as a value to the parameter eval_metric for 
+    This function should be passed as a value to the parameter eval_metric for
     the LGBM sklearn API.
 
     weighted average takes care of imbalance
@@ -124,12 +118,12 @@ def recall_weighted(y, y_hat):
 def _calculate_perf_metric(metric_name, y, y_hat):
     """Returns the performance metrics
 
-       Args:
-           y: Real value
-           y_hat: predicted value
+    Args:
+        y: Real value
+        y_hat: predicted value
 
-       Returns:
-           Metrics computed
+    Returns:
+        Metrics computed
     """
     if metric_name == "rmse":
         return rmse(y, y_hat)
@@ -206,23 +200,23 @@ def cat_train_validate_on_holdout(
 ):
     """Train a CatBoost model, validate on holdout data.
 
-       If `test_X` has a valid value, creates a new model with number of best iteration
-       found during holdout phase using training as well as validation data.
+    If `test_X` has a valid value, creates a new model with number of best iteration
+    found during holdout phase using training as well as validation data.
 
-       Args:
-            logger: Logger to be used
-            training: Training DataFrame
-            validation: Validation DataFrame
-            predictors: List of names of features
-            target: Name of target variable
-            params: Parameters for CatBoost
-            test_X: Test DataFrame
+    Args:
+         logger: Logger to be used
+         training: Training DataFrame
+         validation: Validation DataFrame
+         predictors: List of names of features
+         target: Name of target variable
+         params: Parameters for CatBoost
+         test_X: Test DataFrame
 
-       Returns:
-            bst: CatBoost model
-            valid_score: Best validation score
-            best_iteration: Value of best iteration
-            prediction: Prediction generated on `test_X`
+    Returns:
+         bst: CatBoost model
+         valid_score: Best validation score
+         best_iteration: Value of best iteration
+         prediction: Prediction generated on `test_X`
     """
     result_dict = {}
     logger.info("Training using CatBoost and validating on holdout")
@@ -363,23 +357,23 @@ def xgb_train_validate_on_holdout(
     log_target=False,
 ):
     """Train a XGBoost model, validate on holdout data. If `test_X`
-       has a valid value, creates a new model with number of best iteration
-       found during holdout phase using training as well as validation data.
+    has a valid value, creates a new model with number of best iteration
+    found during holdout phase using training as well as validation data.
 
-       Args:
-            logger: Logger to be used
-            training: Training DataFrame
-            validation: Validation DataFrame
-            predictors: List of names of features
-            target: Name of target variable
-            params: Parameters for XGBoost
-            test_X: Test DataFrame
+    Args:
+         logger: Logger to be used
+         training: Training DataFrame
+         validation: Validation DataFrame
+         predictors: List of names of features
+         target: Name of target variable
+         params: Parameters for XGBoost
+         test_X: Test DataFrame
 
-       Returns:
-            bst: XGB Booster object
-            valid_score: Best validation score
-            best_iteration: Value of best iteration
-            prediction: Prediction generated on `test_X`
+    Returns:
+         bst: XGB Booster object
+         valid_score: Best validation score
+         best_iteration: Value of best iteration
+         prediction: Prediction generated on `test_X`
     """
     result_dict = {}
     logger.info("Training using XGBoost and validating on holdout")
@@ -512,20 +506,20 @@ def lgb_train_validate_on_holdout(
 ):
     """Train a LGB model and validate on holdout data.
 
-       Args:
-            logger: Logger to be used
-            training: Training DataFrame
-            validation: Validation DataFrame
-            predictors: List of names of features
-            target: Name of target variable
-            params: Parameters for LGBM
-            test_X: Test DataFrame
+    Args:
+         logger: Logger to be used
+         training: Training DataFrame
+         validation: Validation DataFrame
+         predictors: List of names of features
+         target: Name of target variable
+         params: Parameters for LGBM
+         test_X: Test DataFrame
 
-       Returns:
-            bst: LGB Booster object
-            valid_score: Best validation score
-            best_iteration: Value of best iteration
-            prediction: Prediction generated on `test_X`
+    Returns:
+         bst: LGB Booster object
+         valid_score: Best validation score
+         best_iteration: Value of best iteration
+         prediction: Prediction generated on `test_X`
     """
     result_dict = {}
     logger.info("Training using LGB and validating on holdout")
@@ -1370,8 +1364,7 @@ def _capture_permutation_importance_on_fold(
 
 
 def _capture_permutation_importance(perm_importance_df, n_important_features=None):
-    """
-    """
+    """ """
     top_imp_features_df = (
         perm_importance_df[["feature", "weight"]]
         .groupby("feature")
