@@ -5,10 +5,11 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, clone
-from sklearn.model_selection import KFold, check_cv
+from sklearn.model_selection import StratifiedKFold, check_cv
 
 from src.common.fi import get_permutation_importance
 from src.common.util import util
+from src.features import load_features
 
 logger = util.get_logger(__name__)
 
@@ -39,7 +40,7 @@ TARGET = "target"
 # ======================================================
 # CV
 # ======================================================
-kfold = KFold(
+skfold = StratifiedKFold(
     n_splits=5,
     shuffle=True,
     random_state=0,
@@ -50,19 +51,31 @@ kfold = KFold(
 # ======================================================
 def train_model(
     estimator: BaseEstimator,
-    cv=kfold,
+    cv=skfold,
     test_run: bool = False,
 ):
     logger.info("Start Out of Fold Prediction")
 
     # load data
-    df_train = util.load_data("train", test_run)
 
-    X = df_train[features]
-    y = df_train[TARGET]
+    df_train_val = load_features(features + [TARGET], "train")
+
+    if test_run:
+        df_train_val = df_train_val.sample(n=100)
+
+    X = df_train_val[features]
+    y = df_train_val[TARGET]
 
     # splitter
     splitter = check_cv(cv)
+
+    # StratifiedKFoldのためにyのbinnigしたものを作成
+    num_bins = int(np.floor(1 + np.log2(len(y))))
+    y_bin = pd.qcut(
+        y,
+        q=num_bins,
+        labels=False,
+    )
 
     # oof予測値のデータフレームの準備
     df_oof = pd.DataFrame()
@@ -80,9 +93,11 @@ def train_model(
     X_array = np.asarray(X)
     y_array = np.asarray(y)
 
-    for num_fold, (train_index, val_index) in enumerate(splitter.split(X, y)):
+    for num_fold, (train_index, val_index) in enumerate(splitter.split(X, y_bin)):
 
         logger.debug("fold %d", num_fold)
+        logger.debug("train size: %d", len(train_index))
+        logger.debug("val size: %d", len(val_index))
 
         # model clone
         _model = clone(estimator)
@@ -111,7 +126,7 @@ def train_model(
             X_val,
             y_val,
             features,
-            n_repeats=10,
+            n_repeats=5,
             max_samples=0.5,
         )
         list_df_permutation_importance.append(df_permutation_importance)

@@ -16,6 +16,7 @@ from sklearn.metrics import mean_squared_error
 from src.common.fi import plot_permutation_importance
 from src.common.util import util
 from src.common.util.com_util import update_tracking
+from src.features import load_features
 
 # %%
 
@@ -75,28 +76,28 @@ model = build_model()
 # ======================================================
 # 学習
 # ======================================================
-
-df_oof, models, df_permutation_importance = train_model(
-    model,
-    test_run=TEST_RUN,
-)
+with util.timer("train", logger):
+    df_oof, models, df_permutation_importance = train_model(
+        model,
+        test_run=TEST_RUN,
+    )
 
 # %%
 # ======================================================
 # 予測
 # ======================================================
 
-# データ読み込み
-df_test = util.load_data("test", TEST_RUN)
-X_test = df_test[features]
+with util.timer("prediction", logger):
+    # データ読み込み
+    X_test = load_features(features, "test")
+    if TEST_RUN:
+        X_test = X_test.sample(n=100)
 
-logger.info("Prediction")
+    df_pred = pd.DataFrame()
+    X_test = np.asarray(X_test)
 
-df_pred = df_test[["id"]].copy()
-X_test = np.asarray(X_test)
-
-for i, model in enumerate(models):
-    df_pred[f"pred_fold_{i}"] = model.predict(X_test)
+    for i, model in enumerate(models):
+        df_pred[f"pred_fold_{i}"] = model.predict(X_test)
 
 
 # ======================================================
