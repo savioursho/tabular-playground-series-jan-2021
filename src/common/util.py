@@ -32,6 +32,10 @@ def get_experiment_id(file_name: str):
     return os.path.splitext(os.path.basename(file_name))[0]
 
 
+def get_file_basename(file_name: str):
+    return os.path.splitext(os.path.basename(file_name))[0]
+
+
 def load_data(
     train_test: Literal["train", "test", "all"] = "all",
     test_run: bool = False,
