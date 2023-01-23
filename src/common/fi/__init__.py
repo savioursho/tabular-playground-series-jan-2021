@@ -2,6 +2,8 @@ import pandas as pd
 import seaborn as sns
 from sklearn.inspection import permutation_importance
 
+sns.set_theme(style="whitegrid")
+
 
 def get_permutation_importance(
     model,

@@ -90,7 +90,7 @@ def get_logger(
     f_handler = logging.handlers.RotatingFileHandler(
         config.LOG_DIR / "experiment.log",
         encoding="utf-8",
-        maxBytes=10000,
+        maxBytes=100_000,
         backupCount=5,
     )
     f_handler.setFormatter(formatter)
